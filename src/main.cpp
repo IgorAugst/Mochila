@@ -4,12 +4,20 @@
 #include <Secrets.h>
 #include <WifiClientSecure.h>
 #include <MQTT.h>
+#include <DHT.h>
+
+#define DHTPIN 5
+#define DHTTYPE DHT11
+
+DHT dht(DHTPIN, DHTTYPE);
 
 WiFiClientSecure net;
 MQTTClient client = MQTTClient(512);
 BearSSL::X509List cert(AWS_CERT_CA);
 BearSSL::X509List client_cert(CLIENT_CRT);
 BearSSL::PrivateKey key(CLIENT_PRIV);
+
+long last;
 
 void messageHandler(String &topic, String &payload)
 {
@@ -58,9 +66,21 @@ void setup()
 
     client.subscribe("mochila/teste");
 
+    dht.begin();
+
+    last = millis();
 }
 
 void loop()
 {
+    if(millis() - last > 1000){
+        float h = dht.readHumidity();
+        float t = dht.readTemperature();
+        String payload = "{\"temperature\": " + String(t) + ", \"humidity\": " + String(h) + "}";
+        Serial.println(payload);
+        //client.publish("mochila/dht", payload);
+        last = millis();
+    }
+
     client.loop();
 }
