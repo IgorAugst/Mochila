@@ -27,23 +27,6 @@ async function connect_websocket(){
 			console.log('connected');
 			resolve(connection);
 		});
-
-        connection.on("interrupt", (error) => {
-            log(`Connection interrupted: error=${error}`);
-        });
-
-        connection.on("resume", (return_code, session_present) => {
-            log(`Resumed: rc: ${return_code} existing session: ${session_present}`);
-        });
-
-        connection.on("disconnect", () => {
-            log("Disconnected");
-        });
-
-        connection.on("error", (error) => {
-            reject(error);
-        });
-
 		connection.connect();
 	});
 
