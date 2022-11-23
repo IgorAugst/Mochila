@@ -4,3 +4,5 @@
 .vscode/launch.json
 .vscode/ipch
 /include/Secrets.h
+/web/node_modules
+/web/bundle.js
