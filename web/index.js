@@ -51,22 +51,31 @@ async function connect_websocket(){
 
 var connection;
 var updateAcceptedTopic = "$aws/things/mochila/shadow/name/location/update/accepted";
+var getAcceptedTopic = "$aws/things/mochila/shadow/name/location/get/accepted";
+var getTopic = "$aws/things/mochila/shadow/name/location/get";
 
 async function main(){
 	console.log("Connecting to websocket");
 	connection = await connect_websocket();
 	connection.subscribe(updateAcceptedTopic, 0, (topic, payload) => {messageCallback(topic, payload)});
+	connection.subscribe(getAcceptedTopic, 0, (topic, payload) => {messageCallback(topic, payload)});
+	setTimeout(() => {connection.publish(getTopic, "", 0)}, 1000);
+	
 }
 
 function messageCallback(topic, payload){
 	console.log("Message received on topic: " + topic);
-	if (topic == updateAcceptedTopic) {
+	if (topic == updateAcceptedTopic || topic == getAcceptedTopic) {
 		const decoder = new TextDecoder('utf8');
 		let message = decoder.decode(new Uint8Array(payload));
 		let json = JSON.parse(message);
 		var lat = json["state"]["reported"]["lat"];
 		var lon = json["state"]["reported"]["lon"];
 		updateMap(lat, lon);
+	}
+
+	if(topic == getAcceptedTopic){
+		connection.unsubscribe(getAcceptedTopic);
 	}
 }
 
