@@ -17,6 +17,8 @@ BearSSL::X509List cert(AWS_CERT_CA);
 BearSSL::X509List client_cert(CLIENT_CRT);
 BearSSL::PrivateKey key(CLIENT_PRIV);
 
+const char updateWeatherTopic[] = "$aws/things/mochila/shadow/name/weather/update/";
+
 long last;
 
 void messageHandler(String &topic, String &payload)
@@ -54,6 +56,7 @@ void setup()
 
     WiFiManager wifiManager;
     wifiManager.autoConnect("ESP-igor", "esp123456");
+
     Serial.println("Connected to wifi");
 
     configTime(0, 0, "pool.ntp.org");
@@ -62,8 +65,8 @@ void setup()
     net.setClientRSACert(&client_cert, &key);
 
     connectAWS();
-    Serial.println("Connected to AWS");
 
+    Serial.println("Connected to AWS");
     client.subscribe("mochila/teste");
 
     dht.begin();
@@ -73,12 +76,21 @@ void setup()
 
 void loop()
 {
-    if(millis() - last > 1000){
+    if(millis() - last > 2000){
         float h = dht.readHumidity();
         float t = dht.readTemperature();
-        String payload = "{\"temperature\": " + String(t) + ", \"humidity\": " + String(h) + "}";
+        
+        StaticJsonDocument<200> doc;
+        char payload[200];
+
+        doc["state"]["reported"]["temp"] = t;
+        doc["state"]["reported"]["hum"] = h;
+        
+        serializeJson(doc, payload);
+
         Serial.println(payload);
-        //client.publish("mochila/dht", payload);
+
+        client.publish(updateWeatherTopic, payload);
         last = millis();
     }
 
