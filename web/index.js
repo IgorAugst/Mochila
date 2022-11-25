@@ -66,4 +66,4 @@ function updateMap(lat, lon){;
 	document.getElementById('iframe').src = "https://www.google.com/maps/embed/v1/place?q=" + lat + "," + lon + "&key=AIzaSyCdLrku76jCwReDCe26PjPvDTP3WFO7hIg";
 }
 
-main();
+//main();

@@ -1,8 +1,86 @@
-.map{
-    width: 50%;
-    height: 50%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
+.body{
+    margin: 0;
+}
+
+@media only screen and (min-width: 800px) {
+    .split{
+        height: 100%;
+        width: 50%;
+        position: fixed;
+        z-index: 1;
+        overflow-x: hidden;
+        overflow-y: hidden;
+    }
+
+    .map{
+        width: 100%;
+        height: 100%;
+    }
+
+    .mapdiv {
+        left: 0;
+        background-color: aquamarine;
+    }
+
+    .tempdiv {
+        right: 0;
+        background-color: brown;
+    }
+
+    .tempbox{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+    }
+
+    .tempcenter{
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+        align-content: center;
+        justify-content: center;
+
+    }
+}
+
+@media only screen and (max-width: 800px) {
+    .split{
+        height: 50%;
+        width: 100%;
+        position: fixed;
+        overflow-x: hidden;
+        overflow-y: hidden;
+    }
+
+    .map{
+        width: 100%;
+        height: 100%;
+    }
+
+    .mapdiv {
+        top: 0;
+        background-color: aquamarine;
+    }
+
+    .tempdiv {
+        bottom: 0;
+        background-color: brown;
+    }
+
+    .tempbox{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+    }
+
+    .tempcenter{
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+        align-content: center;
+        justify-content: center;
+
+    }
 }
