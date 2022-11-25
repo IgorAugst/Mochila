@@ -7,14 +7,30 @@
         <meta content="width=device-width, initial-scale=1" name="viewport" />
         <link rel="stylesheet" href="style.css" />
     </head>
-    <body>
-        <iframe
-            class="map"
-            id="iframe"
-            style="border: 0"
-            loading="lazy"
-            allowfullscreen
-            src=""
-        ></iframe>
+    <body class="body">
+        <div class="split mapdiv">
+            <iframe
+                class="map"
+                id="iframe"
+                style="border: 0"
+                loading="lazy"
+                allowfullscreen
+                src=""
+            ></iframe>
+        </div>
+        <div class="split tempdiv">
+            <div class="tempcenter">
+            <div class="tempbox">
+                <div>
+                    <h1>Temperatura</h1>
+                    <h2 id="temp">30C</h2>
+                </div>
+                <div>
+                    <h1>Umidade</h1>
+                    <h2 id="hum">30%</h2>
+                </div>
+            </div>
+            </div>
+        </div>
     </body>
 </html>
