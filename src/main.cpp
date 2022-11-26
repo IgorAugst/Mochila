@@ -19,7 +19,8 @@ BearSSL::PrivateKey key(CLIENT_PRIV);
 
 const char updateWeatherTopic[] = "$aws/things/mochila/shadow/name/weather/update";
 
-long last;
+long lastWeather = 0;
+long lastGps = 0;
 
 void messageHandler(String &topic, String &payload)
 {
@@ -70,28 +71,41 @@ void setup()
     client.subscribe("mochila/teste");
 
     dht.begin();
+}
 
-    last = millis();
+void manageWeather()
+{
+    float h = dht.readHumidity();
+    float t = dht.readTemperature();
+        
+    StaticJsonDocument<200> doc;
+    char payload[200];
+
+    doc["state"]["reported"]["temp"] = t;
+    doc["state"]["reported"]["hum"] = h;
+        
+    serializeJson(doc, payload);
+
+    Serial.println(payload);
+
+    client.publish(updateWeatherTopic, payload);
+}
+
+void manageGps()
+{
+    //TODO
 }
 
 void loop()
 {
-    if(millis() - last > 2000){
-        float h = dht.readHumidity();
-        float t = dht.readTemperature();
-        
-        StaticJsonDocument<200> doc;
-        char payload[200];
+    if(millis() - lastWeather > 5000){
+        manageWeather();
+        lastWeather = millis();
+    }
 
-        doc["state"]["reported"]["temp"] = t;
-        doc["state"]["reported"]["hum"] = h;
-        
-        serializeJson(doc, payload);
-
-        Serial.println(payload);
-
-        client.publish(updateWeatherTopic, payload);
-        last = millis();
+    if(millis() - lastGps > 60000){
+        //manageGps();
+        lastGps = millis();
     }
 
     client.loop();
