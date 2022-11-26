@@ -17,7 +17,7 @@ BearSSL::X509List cert(AWS_CERT_CA);
 BearSSL::X509List client_cert(CLIENT_CRT);
 BearSSL::PrivateKey key(CLIENT_PRIV);
 
-const char updateWeatherTopic[] = "$aws/things/mochila/shadow/name/weather/update/";
+const char updateWeatherTopic[] = "$aws/things/mochila/shadow/name/weather/update";
 
 long last;
 
