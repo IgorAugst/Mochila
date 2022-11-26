@@ -5,11 +5,18 @@
 #include <WifiClientSecure.h>
 #include <MQTT.h>
 #include <DHT.h>
+#include <TinyGPSPlus.h>
+#include <SoftwareSerial.h>
 
 #define DHTPIN D1
 #define DHTTYPE DHT11
 
+#define GPSRX D2
+
 DHT dht(DHTPIN, DHTTYPE);
+
+TinyGPSPlus gps;
+SoftwareSerial ss(GPSRX,-1);
 
 WiFiClientSecure net;
 MQTTClient client = MQTTClient(512);
@@ -18,6 +25,7 @@ BearSSL::X509List client_cert(CLIENT_CRT);
 BearSSL::PrivateKey key(CLIENT_PRIV);
 
 const char updateWeatherTopic[] = "$aws/things/mochila/shadow/name/weather/update";
+const char updateLocationTopic[] = "$aws/things/mochila/shadow/name/location/update";
 
 long lastWeather = 0;
 long lastGps = 0;
@@ -71,6 +79,8 @@ void setup()
     client.subscribe("mochila/teste");
 
     dht.begin();
+
+    ss.begin(9600);
 }
 
 void manageWeather()
@@ -93,7 +103,23 @@ void manageWeather()
 
 void manageGps()
 {
-    //TODO
+    while(ss.available() > 0){
+        if(gps.encode(ss.read())){
+            if(gps.location.isValid()){
+                StaticJsonDocument<200> doc;
+                char payload[200];
+
+                doc["state"]["reported"]["lat"] = gps.location.lat();
+                doc["state"]["reported"]["lon"] = gps.location.lng();
+                
+                serializeJson(doc, payload);
+
+                Serial.println(payload);
+
+                //client.publish(updateWeatherTopic, payload);
+            }
+        }
+    }
 }
 
 void loop()
