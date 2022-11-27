@@ -17,6 +17,7 @@ DHT dht(DHTPIN, DHTTYPE);
 
 TinyGPSPlus gps;
 SoftwareSerial ss(GPSRX,-1);
+bool gpsEnabled = true;
 
 WiFiClientSecure net;
 MQTTClient client = MQTTClient(512);
@@ -79,8 +80,13 @@ void setup()
     client.subscribe("mochila/teste");
 
     dht.begin();
-
     ss.begin(9600);
+
+}
+
+void publishMessage(String topic, String payload)
+{
+    client.publish(topic, payload);
 }
 
 void manageWeather()
@@ -98,14 +104,18 @@ void manageWeather()
 
     Serial.println(payload);
 
-    client.publish(updateWeatherTopic, payload);
+    publishMessage(updateWeatherTopic, payload);
 }
 
 void manageGps()
 {
     while(ss.available() > 0){
         if(gps.encode(ss.read())){
-            if(gps.location.isValid()){
+            
+            if(gps.location.isUpdated()){
+                gpsEnabled = false;
+                //ss.end();
+
                 StaticJsonDocument<200> doc;
                 char payload[200];
 
@@ -115,8 +125,7 @@ void manageGps()
                 serializeJson(doc, payload);
 
                 Serial.println(payload);
-
-                //client.publish(updateWeatherTopic, payload);
+                publishMessage(updateLocationTopic, payload);
             }
         }
     }
@@ -129,8 +138,14 @@ void loop()
         lastWeather = millis();
     }
 
-    if(millis() - lastGps > 60000){
-        //manageGps();
+    if(gpsEnabled){
+        manageGps();
+    }
+
+    if(millis() - lastGps > 60000 && !gpsEnabled){
+        gpsEnabled = true;
+        ss.begin(9600);
+        Serial.print("GPS enabled");
         lastGps = millis();
     }
 
