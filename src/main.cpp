@@ -16,7 +16,7 @@
 DHT dht(DHTPIN, DHTTYPE);
 
 TinyGPSPlus gps;
-SoftwareSerial ss(GPSRX,-1);
+SoftwareSerial ss(GPSRX, -1);
 bool gpsEnabled = true;
 
 WiFiClientSecure net;
@@ -33,7 +33,7 @@ long lastGps = 0;
 
 void messageHandler(String &topic, String &payload)
 {
-  Serial.println("incoming: " + topic + " - " + payload);
+    Serial.println("incoming: " + topic + " - " + payload);
 }
 
 void connectAWS()
@@ -57,7 +57,6 @@ void connectAWS()
         Serial.println("AWS IoT Timeout!");
         return;
     }
-
 }
 
 void setup()
@@ -70,39 +69,47 @@ void setup()
     wifiManager.setConfigPortalTimeout(180);
     wifiManager.autoConnect("ESP-igor", "esp123456");
 
-    Serial.println("Connected to wifi");
+    if (net.connected())
+    {
+        Serial.println("Connected to wifi");
 
-    configTime(0, 0, "pool.ntp.org");
+        configTime(0, 0, "pool.ntp.org");
 
-    net.setTrustAnchors(&cert);
-    net.setClientRSACert(&client_cert, &key);
+        net.setTrustAnchors(&cert);
+        net.setClientRSACert(&client_cert, &key);
 
-    connectAWS();
+        connectAWS();
 
-    Serial.println("Connected to AWS");
-    client.subscribe("mochila/teste");
+        if (client.connected())
+        {
+            Serial.println("Connected to AWS");
+            client.subscribe("mochila/teste");
+        }
+    }
 
     dht.begin();
     ss.begin(9600);
-
 }
 
 void publishMessage(String topic, String payload)
 {
-    client.publish(topic, payload);
+    if (client.connected())
+    {
+        client.publish(topic, payload);
+    }
 }
 
 void manageWeather()
 {
     float h = dht.readHumidity();
     float t = dht.readTemperature();
-        
+
     StaticJsonDocument<200> doc;
     char payload[200];
 
     doc["state"]["reported"]["temp"] = t;
     doc["state"]["reported"]["hum"] = h;
-        
+
     serializeJson(doc, payload);
 
     Serial.println(payload);
@@ -112,19 +119,22 @@ void manageWeather()
 
 void manageGps()
 {
-    while(ss.available() > 0){
-        if(gps.encode(ss.read())){
-            
-            if(gps.location.isValid()){
-                gpsEnabled = false;
-                //ss.end();
+    while (ss.available() > 0)
+    {
+        if (gps.encode(ss.read()))
+        {
 
+            if (gps.location.isValid())
+            {
+                gpsEnabled = false;
+                // ss.end();
+                Serial.println("GPS disabled");
                 StaticJsonDocument<200> doc;
                 char payload[200];
 
                 doc["state"]["reported"]["lat"] = gps.location.lat();
                 doc["state"]["reported"]["lon"] = gps.location.lng();
-                
+
                 serializeJson(doc, payload);
 
                 Serial.println(payload);
@@ -136,19 +146,22 @@ void manageGps()
 
 void loop()
 {
-    if(millis() - lastWeather > 5000){
+    if (millis() - lastWeather > 5000)
+    {
         manageWeather();
         lastWeather = millis();
     }
 
-    if(gpsEnabled){
+    if (gpsEnabled)
+    {
         manageGps();
     }
 
-    if(millis() - lastGps > 5000 && !gpsEnabled){
+    if (millis() - lastGps > 5000 && !gpsEnabled)
+    {
         gpsEnabled = true;
         ss.begin(9600);
-        Serial.print("GPS enabled");
+        Serial.println("GPS enabled");
         lastGps = millis();
     }
 
