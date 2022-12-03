@@ -38,12 +38,14 @@ void messageHandler(String &topic, String &payload)
 
 void connectAWS()
 {
+    long lastReconnectAttempt = 0;
+
     Serial.println("Connecting to AWS...");
     client.begin(AWS_IOT_ENDPOINT, 8883, net);
     client.setKeepAlive(60);
     client.onMessage(messageHandler);
 
-    while (!client.connect(THINGNAME))
+    while (!client.connect(THINGNAME) && (millis() - lastReconnectAttempt < 5000))
     {
         Serial.print(".");
         Serial.println(client.lastError());
@@ -65,6 +67,7 @@ void setup()
     Serial.println("CPU clock: " + String(ESP.getCpuFreqMHz()) + "MHz");
 
     WiFiManager wifiManager;
+    wifiManager.setConfigPortalTimeout(180);
     wifiManager.autoConnect("ESP-igor", "esp123456");
 
     Serial.println("Connected to wifi");
@@ -112,7 +115,7 @@ void manageGps()
     while(ss.available() > 0){
         if(gps.encode(ss.read())){
             
-            if(gps.location.isUpdated()){
+            if(gps.location.isValid()){
                 gpsEnabled = false;
                 //ss.end();
 
@@ -142,7 +145,7 @@ void loop()
         manageGps();
     }
 
-    if(millis() - lastGps > 60000 && !gpsEnabled){
+    if(millis() - lastGps > 5000 && !gpsEnabled){
         gpsEnabled = true;
         ss.begin(9600);
         Serial.print("GPS enabled");
