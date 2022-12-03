@@ -1,13 +1,35 @@
 #include <Arduino.h>
+#include <SoftwareSerial.h>
+
+#define ESPRX 2
+
+SoftwareSerial esp(ESPRX, -1);
 
 void setup()
 {
     Serial.begin(9600);
-    Serial.println("Hello World!");
+    esp.begin(9600);
+}
+
+String readSerial()
+{
+    String data = "";
+    while (esp.available() > 0)
+    {
+        char c = esp.read();
+        data += c;
+    }
+    return data;
 }
 
 void loop()
 {
-    Serial.println("Hello World!");
-    delay(1000);
+
+    String data = readSerial();
+
+    if (data.length() > 0)
+    {
+        Serial.print(data);
+    }
+
 }

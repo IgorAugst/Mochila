@@ -12,12 +12,15 @@
 #define DHTTYPE DHT11
 
 #define GPSRX D2
+#define ARDTX D3
 
 DHT dht(DHTPIN, DHTTYPE);
 
 TinyGPSPlus gps;
 SoftwareSerial ss(GPSRX, -1);
+SoftwareSerial ard(-1, ARDTX);
 bool gpsEnabled = true;
+bool isWifiConnected = false;
 
 WiFiClientSecure net;
 MQTTClient client = MQTTClient(512);
@@ -67,9 +70,9 @@ void setup()
 
     WiFiManager wifiManager;
     wifiManager.setConfigPortalTimeout(180);
-    wifiManager.autoConnect("ESP-igor", "esp123456");
+    isWifiConnected = wifiManager.autoConnect("ESP-igor", "esp123456");
 
-    if (net.connected())
+    if (isWifiConnected)
     {
         Serial.println("Connected to wifi");
 
@@ -88,6 +91,7 @@ void setup()
     }
 
     dht.begin();
+    ard.begin(9600);
     ss.begin(9600);
 }
 
@@ -95,6 +99,7 @@ void publishMessage(String topic, String payload)
 {
     if (client.connected())
     {
+        ard.write(payload.c_str());
         client.publish(topic, payload);
     }
 }
