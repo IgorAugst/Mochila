@@ -95,7 +95,7 @@ void setup()
 
     dht.begin();
     ard.begin(9600);
-    ss.begin(115200);
+    ss.begin(9600);
 
     pinMode(TRIGGER, INPUT_PULLUP);
 }
@@ -110,7 +110,6 @@ void publishMessage(String topic, String payload)
 
 void lcdMessage(String l1, String l2){
     String message = "{\"l1\":\"" + l1 + "\",\"l2\":\"" + l2 + "\"}";
-
     ard.println(message.c_str());
 }
 
@@ -129,7 +128,7 @@ void manageWeather()
 
     Serial.println(payload);
 
-    //lcdMessage("Temp: " + String((int)t) + "C", "Hum: " + String((int)h) + "%");
+    lcdMessage("Temp: " + String((int)t) + "C", "Hum: " + String((int)h) + "%");
 
     publishMessage(updateWeatherTopic, payload);
 }
