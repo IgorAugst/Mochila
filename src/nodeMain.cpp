@@ -12,15 +12,18 @@
 #define DHTTYPE DHT11
 
 #define GPSRX D2
-#define ARDTX D3
+#define ARDTX D5
+#define TRIGGER D6
 
 DHT dht(DHTPIN, DHTTYPE);
 
 TinyGPSPlus gps;
 SoftwareSerial ss(GPSRX, -1);
 SoftwareSerial ard(-1, ARDTX);
+
 bool gpsEnabled = true;
 bool isWifiConnected = false;
+bool buzzerState = false;
 
 WiFiClientSecure net;
 MQTTClient client = MQTTClient(512);
@@ -72,7 +75,7 @@ void setup()
     wifiManager.setConfigPortalTimeout(180);
     isWifiConnected = wifiManager.autoConnect("ESP-igor", "esp123456");
 
-    if (isWifiConnected)
+    if (isWifiConnected && false)
     {
         Serial.println("Connected to wifi");
 
@@ -93,6 +96,8 @@ void setup()
     dht.begin();
     ard.begin(9600);
     ss.begin(115200);
+
+    pinMode(TRIGGER, INPUT_PULLUP);
 }
 
 void publishMessage(String topic, String payload)
@@ -178,4 +183,20 @@ void loop()
     }
 
     client.loop();
+
+    int buttonState = digitalRead(TRIGGER);
+
+    if (buttonState == HIGH && buzzerState == false)
+    {
+        buzzerState = true;
+        Serial.println("Buzzer on");
+        //lcdMessage("Alarme", "Ativado");
+    }
+    else if (buttonState == LOW && buzzerState == true)
+    {
+        buzzerState = false;
+        Serial.println("Buzzer off");
+        //lcdMessage("Alarme", "Desativado");
+    }
+
 }
