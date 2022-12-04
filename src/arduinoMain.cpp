@@ -1,8 +1,12 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include <ArduinoJson.h>
+#include <LiquidCrystal.h>
 
-#define ESPRX 2
+const int rs = 8, en = 9, d4 = 4, d5 = 5, d6 = 6, d7 = 7;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+#define ESPRX 11
 
 SoftwareSerial esp(ESPRX, -1);
 
@@ -43,6 +47,8 @@ void loop()
 
         Serial.println(l1);
         Serial.println(l2);
+
+
     }
 
 }
