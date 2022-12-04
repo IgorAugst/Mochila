@@ -92,16 +92,21 @@ void setup()
 
     dht.begin();
     ard.begin(9600);
-    ss.begin(9600);
+    ss.begin(115200);
 }
 
 void publishMessage(String topic, String payload)
 {
     if (client.connected())
-    {
-        ard.write(payload.c_str());
+    {    
         client.publish(topic, payload);
     }
+}
+
+void lcdMessage(String l1, String l2){
+    String message = "{\"l1\":\"" + l1 + "\",\"l2\":\"" + l2 + "\"}";
+
+    ard.println(message.c_str());
 }
 
 void manageWeather()
@@ -118,6 +123,8 @@ void manageWeather()
     serializeJson(doc, payload);
 
     Serial.println(payload);
+
+    //lcdMessage("Temp: " + String((int)t) + "C", "Hum: " + String((int)h) + "%");
 
     publishMessage(updateWeatherTopic, payload);
 }
