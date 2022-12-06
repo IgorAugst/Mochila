@@ -8,14 +8,18 @@ const $ = require('jquery');
 //	document.getElementById('iframe').src = "https://www.google.com/maps/embed/v1/place?q=ibirapuera2&key=AIzaSyCdLrku76jCwReDCe26PjPvDTP3WFO7hIg";
 //}, 10000);
 
+const endpoint = "a12s85dpg0xou0-ats.iot.sa-east-1.amazonaws.com"
+const autorizador = "autorizador"
+const mapsKey = "AIzaSyCdLrku76jCwReDCe26PjPvDTP3WFO7hIg"
+
 async function connect_websocket(){
 	return new Promise((resolve, reject) => {
 		let config =
 		iot.AwsIotMqttConnectionConfigBuilder.new_default_builder()
 			.with_clean_session(true)
 			.with_client_id(`web(${new Date()})`)
-			.with_endpoint("a12s85dpg0xou0-ats.iot.sa-east-1.amazonaws.com")
-			.with_custom_authorizer("", "autorizador")
+			.with_endpoint(endpoint)
+			.with_custom_authorizer("", autorizador)
 			.with_keep_alive_seconds(60)
 			.build();
 
@@ -89,7 +93,7 @@ function messageCallback(topic, payload){
 }
 
 function updateMap(lat, lon){;
-	document.getElementById('iframe').src = "https://www.google.com/maps/embed/v1/place?q=" + lat + "," + lon + "&key=AIzaSyCdLrku76jCwReDCe26PjPvDTP3WFO7hIg";
+	document.getElementById('iframe').src = "https://www.google.com/maps/embed/v1/place?q=" + lat + "," + lon + "&key=" + mapsKey;
 }
 
 function updateTemp(temp, hum){
