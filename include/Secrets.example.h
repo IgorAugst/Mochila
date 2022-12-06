@@ -2,9 +2,9 @@
 
 #define SECRET
 
-#define THINGNAME "mochila"
+#define THINGNAME ""
 
-const char AWS_IOT_ENDPOINT[] = "a12s85dpg0xou0-ats.iot.sa-east-1.amazonaws.com";
+const char AWS_IOT_ENDPOINT[] = "";
 
 static const char CLIENT_CRT[] PROGMEM = R"KEY(
 -----BEGIN CERTIFICATE-----
