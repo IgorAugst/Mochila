@@ -73,9 +73,63 @@ Toda infraestrutura foi criada dentro da AWS, utilizando diversos serviços como
 
 Os dois principais serviços utilizados são o IoT core e o Shadow Device (Pertence ao IoT core).
 
+### MQTT
+MQTT é um protocolo de comunicação do tipo publish/subscribe, com foco em leveza e velocidade, sendo amplamente utilizado em dispositivos embarcados e no ramo do IoT.
+
+Nesse protocolo é possível que cada dispositivo se inscreva em tópicos MQTT desejados. Quando algum dispositivo enviar uma mensagem para o tópico inscrito, o dispositivo receberá a mensagem.
+
 ### IoT core
 O IoT core é um serviço para internet das coisas que permite a conexão de dispositivos utilizando o protocolo MQTT ou Lorawan. Para este projeto foi utilizado o MQTT.
 
 1. Dentro da página do IoT core , na aba "Todos os dispositivos", crie uma nova "coisa" seguindo as instruções dadas e baixe os arquivos de chave privada, chave raíz e certificado do dispositivo, são essas chaves que devem ser adicionadas no código do NodeMcu.
 
 > Caso queira, também é possível utilizar uma autoridade certificadora em vez de baixar os arquivos.
+
+2. Na aba de configurações é possível obter o endpoint para adicionar no código do NodeMcu e no website.
+
+### Autorização Front-end
+O IoT core para realizar a autenticação do usuário e garantir a segurança de acesso aos endpoints, utiliza o certificado de cliente X.509. Porém não é possível utilizar esses certificados no front-end, visto que eles devem ser mantidos privado. Para corrigir esse problema foi criado um autorizador customizado que é executado ao receber um pedido de conexão com um dos parâmetros sendo o nome do autorizador. Esse autorizador pode ser adicionado na página de segurança/autorizadores, na aba inicial do AWS IoT Core.
+
+### Lambda
+O autorizador mencionado anteriormente é uma função lambda, tendo o código localizado na pasta "lambda". Para fazer deploy:
+
+1. Dentro da pasta lambda execute o seguinte comando:
+
+```bash
+zip function.zip authorizer.py
+```
+
+```
+aws lambda create-function --function-name autorizador \
+--zip-file fileb://function.zip --handler lambda_function.lambda_handler --runtime python3.8 \
+--role {arn da role}
+```
+
+### Device Shadows
+O Shadow Device é um serviço que permite armazenar o estado do dispositivo e disponibilizá-los para outros serviços, mesmo que o dispositivo físico esteja desconectado. Além disso, o serviço permite enviar o estado do dispositivo real e o estado desejado do dispositivo.
+
+1. Para criar o Shadow Device, é necessário entrar na página do dispositivo anteriormente criado, ir na aba "Device Shadows" e criar dois dispositivos nomeados como "location" e "weather". Esses dispositivos possuem o seguinte esquema:
+
+```json
+{
+    "state":{
+        "reported":{
+            "lat": int,
+            "lon": int
+        }
+    }
+}
+```
+
+```json
+{
+    "state":{
+        "reported":{
+            "temp": int,
+            "hum": int
+        }
+    }
+}
+```
+
+2. Com o dispositivo criado, na aba de Device Shadows é possível obter os tópicos.
