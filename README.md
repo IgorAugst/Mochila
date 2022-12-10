@@ -114,8 +114,8 @@ O Shadow Device é um serviço que permite armazenar o estado do dispositivo e d
 {
     "state":{
         "reported":{
-            "lat": int,
-            "lon": int
+            "lat": 00.00,
+            "lon": 00.00
         }
     }
 }
@@ -125,11 +125,28 @@ O Shadow Device é um serviço que permite armazenar o estado do dispositivo e d
 {
     "state":{
         "reported":{
-            "temp": int,
-            "hum": int
+            "temp": 00.00,
+            "hum": 00.00
         }
     }
 }
 ```
 
-2. Com o dispositivo criado, na aba de Device Shadows é possível obter os tópicos.
+2. Com o dispositivo criado, na aba de Device Shadows é possível obter os tópicos para adicionar no código fonte.
+
+## Utilização
+1. Na primeira conexão do dispositivo, deve-se conectar na rede wifi `ESP-igor` com a senha `esp123456`
+
+2. Ao conectar, digite na barrade busca do navegador: [192.168.4.1](http://192.168.4.1)
+
+3. No site acessado, clique no botão "Configure Wifi"
+
+4. No menu aberto, clique na sua rede wifi e digite sua senha
+
+![wifi](./docs/wifi.jpeg)
+
+> As conexões seguintes na mesma rede são feitas automaticamente.
+
+5. O painel LCD exibe informações da conexão, da temperatura e da umidade, constantemente atualizados
+
+6. Os botões Up e Down do painel podem ser utilizador para controlar o brilho.
