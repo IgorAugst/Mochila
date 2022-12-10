@@ -15,6 +15,8 @@
 #define ARDTX D5
 #define TRIGGER D6
 
+#define MOSFETPIN D7
+
 DHT dht(DHTPIN, DHTTYPE);
 
 TinyGPSPlus gps;
@@ -98,19 +100,31 @@ void setup()
     ss.begin(9600);
 
     pinMode(TRIGGER, INPUT_PULLUP);
+    pinMode(MOSFETPIN, OUTPUT);
+
+    digitalWrite(MOSFETPIN, LOW);
 }
 
 void publishMessage(String topic, String payload)
 {
     if (client.connected())
-    {    
+    {
         client.publish(topic, payload);
     }
 }
 
-void lcdMessage(String l1, String l2){
-    String message = "{\"l1\":\"" + l1 + "\",\"l2\":\"" + l2 + "\"}";
-    ard.println(message.c_str());
+void lcdMessage(String l1, String l2, int brightness = -1)
+{
+    if (!buzzerState)
+    {
+        StaticJsonDocument<200> doc;
+        doc["l1"] = l1;
+        doc["l2"] = l2;
+        doc["b"] = brightness;
+        char payload[200];
+        serializeJson(doc, payload);
+        ard.println(payload);
+    }
 }
 
 void manageWeather()
@@ -173,7 +187,7 @@ void loop()
         manageGps();
     }
 
-    if (millis() - lastGps > 5000 && !gpsEnabled)
+    if (millis() - lastGps > 60000 && !gpsEnabled)
     {
         gpsEnabled = true;
         ss.begin(9600);
@@ -187,15 +201,16 @@ void loop()
 
     if (buttonState == HIGH && buzzerState == false)
     {
-        buzzerState = true;
         Serial.println("Buzzer on");
-        //lcdMessage("Alarme", "Ativado");
+        lcdMessage("Alarme", "Ativado", 255);
+        buzzerState = true;
+        digitalWrite(MOSFETPIN, HIGH);
     }
     else if (buttonState == LOW && buzzerState == true)
     {
         buzzerState = false;
         Serial.println("Buzzer off");
-        //lcdMessage("Alarme", "Desativado");
+        lcdMessage("Alarme", "Desativado");
+        digitalWrite(MOSFETPIN, LOW);
     }
-
 }

@@ -8,8 +8,9 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 #define ESPRX 11
 #define BRIGHTPIN 10
+#define defaultBrightness 5
 
-int brightness = 5;
+int brightness = defaultBrightness;
 bool isValid = false;
 
 SoftwareSerial esp(ESPRX, -1);
@@ -47,13 +48,21 @@ void loop()
 
     if (data.length() > 0 && isValid)
     {
-        StaticJsonDocument<200> doc;
+        StaticJsonDocument<300> doc;
         deserializeJson(doc, data);
 
         String l1 = doc["l1"];
         String l2 = doc["l2"];
+        int br = doc["b"];
 
         lcd.clear();
+
+        if(br != -1){
+            analogWrite(BRIGHTPIN, br);
+        }else{
+            analogWrite(BRIGHTPIN, brightness);
+        }
+
 
         lcd.setCursor(0, 0);
         lcd.print(l1);
