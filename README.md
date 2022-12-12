@@ -19,14 +19,17 @@ As informações de temperatura, umidade e geolocalização também estão dispo
 | 1          | Buzzer            |                     |
 | 1          | Led               |                     |
 | 1          | push-button       |                     |
-| 1          | N-mosfet          | Utilizado o IRF540N |
+| 1          | N-mosfet          | Utilizado o 2N7000  |
 | 1          | Resistor 10kΩ     |                     |
 | 1          | Protoboard        | Opcional            |
 | 1          | Fonte protoboard  | Opcional            |
 
 ## Circuito
 
-Adicionar esquemático
+1. O circuito deve ser montado como o esquemático abaixo:
+
+![Circuito](./docs/circuito.bmp)
+
 
 ## Instalação
 
