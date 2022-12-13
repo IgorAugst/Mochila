@@ -69,6 +69,11 @@ void connectAWS()
 
 void setup()
 {
+    pinMode(TRIGGER, INPUT_PULLUP);
+    pinMode(MOSFETPIN, OUTPUT);
+
+    digitalWrite(MOSFETPIN, LOW);
+
     Serial.begin(9600);
     Serial.println("Starting...");
     Serial.println("CPU clock: " + String(ESP.getCpuFreqMHz()) + "MHz");
@@ -98,11 +103,6 @@ void setup()
     dht.begin();
     ard.begin(9600);
     ss.begin(9600);
-
-    pinMode(TRIGGER, INPUT_PULLUP);
-    pinMode(MOSFETPIN, OUTPUT);
-
-    digitalWrite(MOSFETPIN, LOW);
 }
 
 void publishMessage(String topic, String payload)
