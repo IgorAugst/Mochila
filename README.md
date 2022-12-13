@@ -152,6 +152,6 @@ O Shadow Device é um serviço que permite armazenar o estado do dispositivo e d
 
 5. O painel LCD exibe informações da conexão, da temperatura e da umidade, constantemente atualizados
 
-6. Os botões Up e Down do painel podem ser utilizador para controlar o brilho.
+6. Os botões Up e Down do painel podem ser utilizados para controlar o brilho.
 
 7. Os dados também ficam disponíveis no site [mochila.igoraugst.dev](http://mochila.igoraugst.dev)
