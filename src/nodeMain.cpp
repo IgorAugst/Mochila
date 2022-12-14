@@ -26,6 +26,7 @@ SoftwareSerial ard(-1, ARDTX);
 bool gpsEnabled = true;
 bool isWifiConnected = false;
 bool buzzerState = false;
+bool isLcdLocked = false;
 
 WiFiClientSecure net;
 MQTTClient client = MQTTClient(512);
@@ -38,6 +39,20 @@ const char updateLocationTopic[] = "$aws/things/mochila/shadow/name/location/upd
 
 long lastWeather = 0;
 long lastGps = 0;
+
+void lcdMessage(String l1, String l2, int brightness = -1, bool highPriority = false)
+{
+    if (!isLcdLocked || highPriority)
+    {
+        StaticJsonDocument<200> doc;
+        doc["l1"] = l1;
+        doc["l2"] = l2;
+        doc["b"] = brightness;
+        char payload[200];
+        serializeJson(doc, payload);
+        ard.println(payload);
+    }
+}
 
 void messageHandler(String &topic, String &payload)
 {
@@ -57,7 +72,8 @@ void connectAWS()
     {
         Serial.print(".");
         Serial.println(client.lastError());
-        delay(100);
+        lcdMessage("Erro ao conectar", "AWS", 255, true);
+        delay(300);
     }
 
     if (!client.connected())
@@ -69,17 +85,28 @@ void connectAWS()
 
 void setup()
 {
+
     pinMode(TRIGGER, INPUT_PULLUP);
     pinMode(MOSFETPIN, OUTPUT);
 
     digitalWrite(MOSFETPIN, LOW);
 
+    dht.begin();
+    
     Serial.begin(9600);
+    ard.begin(9600);
+    ss.begin(9600);
+    
+    lcdMessage("Iniciando...", "Sistema", 255, true);
+
+    delay(1000);
+
     Serial.println("Starting...");
     Serial.println("CPU clock: " + String(ESP.getCpuFreqMHz()) + "MHz");
 
     WiFiManager wifiManager;
-    wifiManager.setConfigPortalTimeout(180);
+    wifiManager.setConfigPortalTimeout(60);
+    lcdMessage("Conectando...", "WiFi", 255, true);
     isWifiConnected = wifiManager.autoConnect("ESP-igor", "esp123456");
 
     if (isWifiConnected && false)
@@ -91,6 +118,8 @@ void setup()
         net.setTrustAnchors(&cert);
         net.setClientRSACert(&client_cert, &key);
 
+
+        lcdMessage("Conectando...", "AWS", 255, true);
         connectAWS();
 
         if (client.connected())
@@ -100,9 +129,6 @@ void setup()
         }
     }
 
-    dht.begin();
-    ard.begin(9600);
-    ss.begin(9600);
 }
 
 void publishMessage(String topic, String payload)
@@ -110,20 +136,6 @@ void publishMessage(String topic, String payload)
     if (client.connected())
     {
         client.publish(topic, payload);
-    }
-}
-
-void lcdMessage(String l1, String l2, int brightness = -1)
-{
-    if (!buzzerState)
-    {
-        StaticJsonDocument<200> doc;
-        doc["l1"] = l1;
-        doc["l2"] = l2;
-        doc["b"] = brightness;
-        char payload[200];
-        serializeJson(doc, payload);
-        ard.println(payload);
     }
 }
 
@@ -201,16 +213,18 @@ void loop()
 
     if (buttonState == HIGH && buzzerState == false)
     {
-        Serial.println("Buzzer on");
-        lcdMessage("Alarme", "Ativado", 255);
         buzzerState = true;
+        isLcdLocked = true;
+        Serial.println("Buzzer on");
+        lcdMessage("Alarme", "Ativado", 255, true);
         digitalWrite(MOSFETPIN, HIGH);
     }
     else if (buttonState == LOW && buzzerState == true)
     {
         buzzerState = false;
+        isLcdLocked = false;
         Serial.println("Buzzer off");
-        lcdMessage("Alarme", "Desativado");
+        lcdMessage("Alarme", "Desativado", -1, true);
         digitalWrite(MOSFETPIN, LOW);
     }
 }
