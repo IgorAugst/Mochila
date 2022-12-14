@@ -28,7 +28,7 @@ As informações de temperatura, umidade e geolocalização também estão dispo
 
 1. O circuito deve ser montado como o esquemático abaixo:
 
-![Circuito](./docs/circuito.bmp)
+![Circuito](./docs/circuito.jpg)
 
 
 ## Instalação
