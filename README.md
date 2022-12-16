@@ -155,3 +155,5 @@ O Shadow Device é um serviço que permite armazenar o estado do dispositivo e d
 6. Os botões Up e Down do painel podem ser utilizados para controlar o brilho.
 
 7. Os dados também ficam disponíveis no site [mochila.igoraugst.dev](http://mochila.igoraugst.dev)
+
+8. Um vídeo de exemplo de funcionamento pode ser visto nesse [link](https://drive.google.com/file/d/1-_sizLgkmaNKqdbTxfQzg929sIw3BYR8/view?usp=share_link)
