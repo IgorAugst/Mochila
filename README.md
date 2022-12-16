@@ -28,7 +28,7 @@ As informações de temperatura, umidade e geolocalização também estão dispo
 
 1. O circuito deve ser montado como o esquemático abaixo:
 
-![Circuito](./docs/circuito.bmp)
+![Circuito](./docs/circuito.jpg)
 
 
 ## Instalação
@@ -152,6 +152,6 @@ O Shadow Device é um serviço que permite armazenar o estado do dispositivo e d
 
 5. O painel LCD exibe informações da conexão, da temperatura e da umidade, constantemente atualizados
 
-6. Os botões Up e Down do painel podem ser utilizador para controlar o brilho.
+6. Os botões Up e Down do painel podem ser utilizados para controlar o brilho.
 
 7. Os dados também ficam disponíveis no site [mochila.igoraugst.dev](http://mochila.igoraugst.dev)

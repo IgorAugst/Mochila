@@ -17,6 +17,8 @@
 
 #define MOSFETPIN D7
 
+#define BUTTONPIN D8
+
 DHT dht(DHTPIN, DHTTYPE);
 
 TinyGPSPlus gps;
@@ -26,6 +28,8 @@ SoftwareSerial ard(-1, ARDTX);
 bool gpsEnabled = true;
 bool isWifiConnected = false;
 bool buzzerState = false;
+bool isLcdLocked = false;
+bool isTurnedOn = true;
 
 WiFiClientSecure net;
 MQTTClient client = MQTTClient(512);
@@ -38,6 +42,47 @@ const char updateLocationTopic[] = "$aws/things/mochila/shadow/name/location/upd
 
 long lastWeather = 0;
 long lastGps = 0;
+long lastInterruption = 0;
+
+void lcdMessage(String l1, String l2, int brightness = -1, bool highPriority = false)
+{
+    if (!isLcdLocked || highPriority)
+    {
+        StaticJsonDocument<200> doc;
+        doc["l1"] = l1;
+        doc["l2"] = l2;
+        doc["b"] = brightness;
+        char payload[200];
+        serializeJson(doc, payload);
+        ard.println(payload);
+    }
+}
+
+void IRAM_ATTR onOffInterrupt()
+{
+    if (millis() - lastInterruption > 1000)
+    {
+        lastInterruption = millis();
+        if (isTurnedOn)
+        {
+            isLcdLocked = true;
+            buzzerState = false;
+            isTurnedOn = false;
+            digitalWrite(MOSFETPIN, LOW);
+            lcdMessage("Sistema", "desligado", 255, true);
+        }
+        else
+        {
+            isLcdLocked = false;
+            isTurnedOn = true;
+            lcdMessage("Sistema", "ligado", 255, true);
+        }
+
+        Serial.println("entrou");
+    }
+}
+
+void IRAM_ATTR triggerOpenInterrupt();
 
 void messageHandler(String &topic, String &payload)
 {
@@ -57,7 +102,8 @@ void connectAWS()
     {
         Serial.print(".");
         Serial.println(client.lastError());
-        delay(100);
+        lcdMessage("Erro ao conectar", "AWS", 255, true);
+        delay(300);
     }
 
     if (!client.connected())
@@ -69,15 +115,33 @@ void connectAWS()
 
 void setup()
 {
+
+    pinMode(TRIGGER, INPUT_PULLUP);
+    pinMode(MOSFETPIN, OUTPUT);
+
+    attachInterrupt(digitalPinToInterrupt(BUTTONPIN), onOffInterrupt, RISING);
+
+    digitalWrite(MOSFETPIN, LOW);
+
+    dht.begin();
+
     Serial.begin(9600);
+    ard.begin(9600);
+    ss.begin(9600);
+
+    lcdMessage("Iniciando...", "Sistema", 255, true);
+
+    delay(1000);
+
     Serial.println("Starting...");
     Serial.println("CPU clock: " + String(ESP.getCpuFreqMHz()) + "MHz");
 
     WiFiManager wifiManager;
-    wifiManager.setConfigPortalTimeout(180);
+    wifiManager.setConfigPortalTimeout(60);
+    lcdMessage("Conectando...", "WiFi", 255, true);
     isWifiConnected = wifiManager.autoConnect("ESP-igor", "esp123456");
 
-    if (isWifiConnected && false)
+    if (isWifiConnected)
     {
         Serial.println("Connected to wifi");
 
@@ -86,6 +150,7 @@ void setup()
         net.setTrustAnchors(&cert);
         net.setClientRSACert(&client_cert, &key);
 
+        lcdMessage("Conectando...", "AWS", 255, true);
         connectAWS();
 
         if (client.connected())
@@ -94,15 +159,6 @@ void setup()
             client.subscribe("mochila/teste");
         }
     }
-
-    dht.begin();
-    ard.begin(9600);
-    ss.begin(9600);
-
-    pinMode(TRIGGER, INPUT_PULLUP);
-    pinMode(MOSFETPIN, OUTPUT);
-
-    digitalWrite(MOSFETPIN, LOW);
 }
 
 void publishMessage(String topic, String payload)
@@ -110,20 +166,6 @@ void publishMessage(String topic, String payload)
     if (client.connected())
     {
         client.publish(topic, payload);
-    }
-}
-
-void lcdMessage(String l1, String l2, int brightness = -1)
-{
-    if (!buzzerState)
-    {
-        StaticJsonDocument<200> doc;
-        doc["l1"] = l1;
-        doc["l2"] = l2;
-        doc["b"] = brightness;
-        char payload[200];
-        serializeJson(doc, payload);
-        ard.println(payload);
     }
 }
 
@@ -199,18 +241,23 @@ void loop()
 
     int buttonState = digitalRead(TRIGGER);
 
-    if (buttonState == HIGH && buzzerState == false)
+    if (isTurnedOn)
     {
-        Serial.println("Buzzer on");
-        lcdMessage("Alarme", "Ativado", 255);
-        buzzerState = true;
-        digitalWrite(MOSFETPIN, HIGH);
-    }
-    else if (buttonState == LOW && buzzerState == true)
-    {
-        buzzerState = false;
-        Serial.println("Buzzer off");
-        lcdMessage("Alarme", "Desativado");
-        digitalWrite(MOSFETPIN, LOW);
+        if (buttonState == HIGH && buzzerState == false)
+        {
+            buzzerState = true;
+            isLcdLocked = true;
+            Serial.println("Buzzer on");
+            lcdMessage("Alarme", "Ativado", 255, true);
+            digitalWrite(MOSFETPIN, HIGH);
+        }
+        else if (buttonState == LOW && buzzerState == true)
+        {
+            buzzerState = false;
+            isLcdLocked = false;
+            Serial.println("Buzzer off");
+            lcdMessage("Alarme", "Desativado", -1, true);
+            digitalWrite(MOSFETPIN, LOW);
+        }
     }
 }
