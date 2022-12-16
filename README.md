@@ -161,3 +161,5 @@ O Shadow Device é um serviço que permite armazenar o estado do dispositivo e d
 9. Caso a mochila seja aberta com o sistema ativado,um alarme irá soar.
 
 10. Um botão está disponível para desabilitar o sistema e abrir a mala sem disparar o alarme.
+
+11. O design da mala pode ser visto na pasta [docs](./docs/Mochila%20Ant%20Furto.pdf)
