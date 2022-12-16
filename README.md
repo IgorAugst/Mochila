@@ -157,3 +157,7 @@ O Shadow Device é um serviço que permite armazenar o estado do dispositivo e d
 7. Os dados também ficam disponíveis no site [mochila.igoraugst.dev](http://mochila.igoraugst.dev)
 
 8. Um vídeo de exemplo de funcionamento pode ser visto nesse [link](https://drive.google.com/file/d/1-_sizLgkmaNKqdbTxfQzg929sIw3BYR8/view?usp=share_link)
+
+9. Caso a mochila seja aberta com o sistema ativado,um alarme irá soar.
+
+10. Um botão está disponível para desabilitar o sistema e abrir a mala sem disparar o alarme.
