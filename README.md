@@ -137,6 +137,27 @@ O Shadow Device é um serviço que permite armazenar o estado do dispositivo e d
 
 2. Com o dispositivo criado, na aba de Device Shadows é possível obter os tópicos para adicionar no código fonte.
 
+### SNS
+O SNS (Simple notification service) é um serviço de envio de notificações, que pode enviar mensagens de SMS e email. Esse serviço foi utilizado para enviar emails contendo a localização da mochila.
+
+Para utilizar o serviço é necessário:
+
+1. Criar um tópico SNS e cadastrar o email para ser enviado
+
+2. Vincular o Iot Core com o tópico SNS por meio do Iot Core Rules e adicionar a consulta para obter os dados:
+
+```SQL
+SELECT state.reported.lat, state.reported.lon FROM '$aws/things/mochila/shadow/name/location/update'
+```
+
+### S3
+O S3 (Simple Storage Service) é um serviço de armazenamento que pode ser configurado para hospedar um site estático.
+
+## Funcionamento
+O NodeMcu realiza a leitura dos sensores conforme o tempo pré estabelecido, a cada uma dessas leituras, os dados serão serializados em formato JSON e enviados para os tópicos MQTT correspondentes. No caso da Temperatura e Umidade, os dados serializados são enviados para o Arduino controlando o painél lcd por meio da comunicação serial UART. O site ao ser inicializado realiza a incrição nos tópicos necessário e fica aguardando as mensagens, ao receber uma mensagem, a interface é atualizada.
+
+A detecção de violação da mala é feito por meio de um cabo aterrado conectado ao pino do NodeMcu, quando a conexão é rompida, o dispositivo detecta essa alteração e aciona o alarme.
+
 ## Utilização
 1. Na primeira conexão do dispositivo, deve-se conectar na rede wifi `ESP-igor` com a senha `esp123456`
 
