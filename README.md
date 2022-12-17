@@ -167,7 +167,7 @@ A detecção de violação da mala é feito por meio de um cabo aterrado conecta
 
 4. No menu aberto, clique na sua rede wifi e digite sua senha
 
-![wifi](./docs/wifi.jpeg)
+![wifi](./docs/wifi.png)
 
 > As conexões seguintes na mesma rede são feitas automaticamente.
 
