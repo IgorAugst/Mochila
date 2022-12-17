@@ -176,3 +176,11 @@ A detecção de violação da mala é feito por meio de um cabo aterrado conecta
 6. Os botões Up e Down do painel podem ser utilizados para controlar o brilho.
 
 7. Os dados também ficam disponíveis no site [mochila.igoraugst.dev](http://mochila.igoraugst.dev)
+
+8. Um vídeo de exemplo de funcionamento pode ser visto nesse [link](https://drive.google.com/file/d/1-_sizLgkmaNKqdbTxfQzg929sIw3BYR8/view?usp=share_link)
+
+9. Caso a mochila seja aberta com o sistema ativado,um alarme irá soar.
+
+10. Um botão está disponível para desabilitar o sistema e abrir a mala sem disparar o alarme.
+
+11. O design da mala pode ser visto na pasta [docs](./docs/Mochila%20Anti%20Furto.pdf)
